@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+/* Ensure the body and root take full width */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent unwanted horizontal scrolling */
+  display: flex;
+  flex-direction: column;
+}
+
+

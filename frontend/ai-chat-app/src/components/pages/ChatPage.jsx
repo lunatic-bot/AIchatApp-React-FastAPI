@@ -1,34 +1,57 @@
-import { useState, useEffect } from "react";
-import ChatBox from "../ChatBox";
-import ChatInput from "../ChatInput";
+import { useState } from "react";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
-  const [socket, setSocket] = useState(null);
+  const [input, setInput] = useState("");
 
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/chat/1"); // Adjust URL based on backend
-    setSocket(ws);
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    setMessages([...messages, { text: input, sender: "user" }]);
+    setInput("");
+  };
 
-    ws.onmessage = (event) => {
-      const newMessage = { text: event.data, sender: "bot" };
-      setMessages((prev) => [...prev, newMessage]);
-    };
-
-    return () => ws.close();
-  }, []);
-
-  const sendMessage = (message) => {
-    if (socket) {
-      socket.send(message);
-      setMessages((prev) => [...prev, { text: message, sender: "user" }]);
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevents line break in input
+      sendMessage();
     }
   };
 
   return (
-    <div className="chat-container">
-      <ChatBox messages={messages} />
-      <ChatInput sendMessage={sendMessage} />
+    <div className="container mt-4">
+      <div className="card">
+        <div className="card-header bg-primary text-white">AI Chat</div>
+        <div
+          className="card-body chat-box"
+          style={{ height: "400px", overflowY: "auto" }}
+        >
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`p-2 my-2 rounded ${
+                msg.sender === "user"
+                  ? "bg-light text-end"
+                  : "bg-info text-white"
+              }`}
+            >
+              {msg.text}
+            </div>
+          ))}
+        </div>
+        <div className="card-footer d-flex">
+          <input
+            type="text"
+            className="form-control"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress} // Handles Enter key press
+            placeholder="Type a message..."
+          />
+          <button className="btn btn-success ms-2" onClick={sendMessage}>
+            Send
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
