@@ -8,14 +8,16 @@ const LoginPage = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Logging in:", email, password);
-    navigate("/chat"); // Redirect to Chat after login
+    console.log("Logging in:", email);
+    navigate("/chat");
   };
 
   return (
-    <div className="container mt-4">
-      <div className="card">
-        <div className="card-header bg-primary text-white">Login</div>
+    <div className="d-flex justify-content-center mt-4 vh-60">
+      <div className="card w-50 p-4">
+        <div className="card-header bg-primary text-white text-center">
+          Login
+        </div>
         <div className="card-body">
           <form onSubmit={handleLogin}>
             <div className="mb-3">
@@ -38,7 +40,8 @@ const LoginPage = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary">
+
+            <button type="submit" className="btn btn-primary w-100">
               Login
             </button>
           </form>
