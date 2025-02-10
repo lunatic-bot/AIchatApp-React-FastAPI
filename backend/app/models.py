@@ -7,9 +7,9 @@ from database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)  # Unique user ID
-    username = Column(String, unique=True, index=True, nullable=False)  # Unique username (required)
-    hashed_password = Column(String, nullable=False)  # Hashed password for security
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)  
+    username = Column(String, unique=True, index=True, nullable=False)  
+    hashed_password = Column(String, nullable=False)  
 
 # Define the ChatRoom model representing chat rooms
 class ChatRoom(Base):
