@@ -10,6 +10,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
+from sqlalchemy.future import select
+
 
 env_path = Path(__file__).parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -36,10 +38,11 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     return new_user
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):
-    user = await db.execute(User.__table__.select().where(User.username == username))
-    user = user.scalars().first()
+    result = await db.execute(select(User).where(User.username == username))  
+    user = result.scalars().first()  # Extract the User object
+    
     if not user or not bcrypt.verify(password, user.hashed_password):
-        return None
+        return False
     return user
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
