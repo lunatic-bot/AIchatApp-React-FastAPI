@@ -14,7 +14,7 @@ class UserResponse(UserBase):
 
     class Config:
         # Enable ORM mode to allow SQLAlchemy models to be serialized as Pydantic models
-        orm_mode = True  
+        # orm_mode = True  
         
         # Required for Pydantic v2+ to properly handle attribute conversion
         from_attributes = True  

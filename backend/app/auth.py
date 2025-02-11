@@ -6,9 +6,16 @@ from schemas import UserCreate, UserResponse, Token
 from passlib.hash import bcrypt
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+SECRET_KEY = os.getenv("SECRET_KEY")  
 
 # Secret key for JWT signing
-SECRET_KEY = "your_secret_key"  # Change this to a secure value in a .env file
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
