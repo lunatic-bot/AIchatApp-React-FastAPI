@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base
+from database.connection import Base
 
 # Define the ChatRoom model representing chat rooms
 class ChatRoom(Base):

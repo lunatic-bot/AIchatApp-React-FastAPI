@@ -1,10 +1,6 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from pathlib import Path
-from auth import auth_router
-from wskt import websocket_router
+from fastapi import FastAPI
+from api.user import auth_router
+from api.wesocket_router import websocket_router
 
 app = FastAPI(debug=True,
               title="AI-ChatApp",

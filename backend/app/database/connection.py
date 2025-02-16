@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from databases import Database
 
-env_path = Path(__file__).parent.parent / '.env'
+env_path = Path(__file__).parent.parent.parent / '.env'
 print('Env path : ', env_path)
 
 load_dotenv(dotenv_path=env_path)
