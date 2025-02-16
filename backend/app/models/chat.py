@@ -3,14 +3,6 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
 
-# Define the User model representing users in the system
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)  
-    username = Column(String, unique=True, index=True, nullable=False)  
-    hashed_password = Column(String, nullable=False)  
-
 # Define the ChatRoom model representing chat rooms
 class ChatRoom(Base):
     __tablename__ = "chat_rooms"
@@ -24,7 +16,7 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)  # Unique message ID
     content = Column(Text, nullable=False)  # Message content (required)
-    timestamp = Column(DateTime, default=datetime.utcnow)  # Timestamp when the message was sent
+    timestamp = Column(DateTime, default=datetime.now(datetime.timezone.utc))  # Timestamp when the message was sent
     sender_id = Column(Integer, ForeignKey("users.id"))  # Foreign key linking to the sender (User)
     room_id = Column(Integer, ForeignKey("chat_rooms.id"))  # Foreign key linking to the chat room
 
