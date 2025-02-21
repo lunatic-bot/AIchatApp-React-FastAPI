@@ -4,7 +4,7 @@ from database.connection import get_db  # Import function to get the database se
 from models.user import User  # Import User model
 from schemas.user import UserCreate, UserResponse, Token , TokenRefresh # Import Pydantic schemas for validation
 from passlib.hash import bcrypt  # Library for hashing passwords
-from utils.auth import create_access_token, create_refresh_token, verify_refresh_token
+from utils.auth import create_access_token, create_refresh_token, verify_refresh_token, authenticate_user
 
 # Create a router for authentication-related endpoints
 auth_router = APIRouter()
