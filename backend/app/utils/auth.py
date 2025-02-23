@@ -21,7 +21,7 @@ REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY")  # Separate secret key for 
 ALGORITHM = "HS256"
 
 # Token expiration durations
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Access token expires in 30 minutes
+ACCESS_TOKEN_EXPIRE_MINUTES = 2  # Access token expires in 30 minutes
 REFRESH_TOKEN_EXPIRE_DAYS = 7  # Refresh token expires in 7 days
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -52,7 +52,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
         str: Encoded JWT refresh token.
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES + 5))#(days=REFRESH_TOKEN_EXPIRE_DAYS))
     to_encode.update({"exp": expire})  # Add expiration time to payload
     return jwt.encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)  # Encode and return JWT token
 
