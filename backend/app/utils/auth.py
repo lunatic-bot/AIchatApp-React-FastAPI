@@ -52,7 +52,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
         str: Encoded JWT refresh token.
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES + 5))#(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
     to_encode.update({"exp": expire})  # Add expiration time to payload
     return jwt.encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)  # Encode and return JWT token
 
@@ -93,4 +93,22 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
         return False  # Authentication failed
 
     return user  # Return authenticated user object
+
+
+RESET_TOKEN_EXPIRE_MINUTES = 15  # Token validity
+
+def create_reset_token(email: str):
+    """Generate a password reset token"""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
+    to_encode = {"sub": email, "exp": expire}
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_token(token: str):
+    """Decodes and verifies the JWT token"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")  # Extract email
+    except JWTError:
+        return None
 
