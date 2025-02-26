@@ -51,51 +51,72 @@ async def refresh_access_token(refresh_token: str):
     """
     Generates a new access token using a valid refresh token.
     """
-    username = verify_refresh_token(refresh_token)  # Validate and decode refresh token
+    # Verify the provided refresh token and extract the associated username
+    username = verify_refresh_token(refresh_token)  
+    
+    # If verification fails, raise an unauthorized error
     if not username:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
+    # Generate a new access token for the user
     new_access_token = create_access_token(data={"sub": username})
-    return {"access_token": new_access_token, "token_type": "bearer"}
 
+    # Return the new access token
+    return {"access_token": new_access_token, "token_type": "bearer"}
 
 
 @auth_router.post("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
-    """Handles forgot password requests"""
+    """
+    Handles forgot password requests by generating a reset link and sending an email.
+    """
+    # Query the database to find the user with the given email
     result = await db.execute(select(User).where(User.email == request.email))
     user = result.scalars().first()
 
+    # If no user is found, return a 404 error
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Generate a password reset token for the user
     reset_token = create_reset_token(user.email)
+
+    # Construct the password reset link with the generated token
     reset_link = f"http://yourfrontend.com/reset-password?token={reset_token}"
 
-    # Send email
+    # Send the reset link via email
     await send_reset_email(user.email, reset_link)
 
+    # Return a success message
     return {"message": "Password reset link sent to your email"}
-
 
 
 @auth_router.post("/reset-password")
 async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
-    """Resets the user's password"""
-    email = verify_token(request.token)  # Extract email from token
+    """
+    Resets the user's password using a valid reset token.
+    """
+    # Verify the reset token and extract the email associated with it
+    email = verify_token(request.token)
 
+    # If the token is invalid or expired, return a 400 error
     if not email:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
+    # Query the database to find the user with the extracted email
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalars().first()
 
+    # If no user is found, return a 404 error
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Hash new password
+    # Hash the new password before storing it
     hashed_password = bcrypt.hash(request.new_password)
     user.hashed_password = hashed_password
 
+    # Commit the updated password to the database
     await db.commit()
+
+    # Return a success message
     return {"message": "Password reset successful"}
