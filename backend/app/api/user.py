@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.connection import get_db  # Import function to get the database session
 from models.user import User  # Import User model
 from schemas.user import UserCreate, UserLogin, UserResponse, Token , TokenRefresh, ResetPasswordRequest, ForgotPasswordRequest # Import Pydantic schemas for validation
 from passlib.hash import bcrypt  # Library for hashing passwords
-from utils.auth import create_access_token, create_refresh_token, verify_refresh_token, authenticate_user, verify_token, create_reset_token
+from utils.auth import create_access_token, create_refresh_token, verify_refresh_token, authenticate_user, verify_token, create_reset_token, get_current_user
 
 from utils.email import send_reset_email
 
@@ -27,42 +28,6 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(new_user)
     return new_user
-
-
-
-
-# @auth_router.post("/login")
-# async def login_for_access_token(
-#     response: Response, username: str, password: str, db: AsyncSession = Depends(get_db)
-# ):
-#     # print(username, password)
-#     """
-#     Authenticates a user and stores the access token in a secure HTTP-only cookie.
-#     """
-#     # Verify user credentials
-#     user = await authenticate_user(db, username, password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-
-#     # Generate access and refresh tokens
-#     access_token = create_access_token(data={"sub": user.username})
-#     refresh_token = create_refresh_token(data={"sub": user.username})
-
-#     # Store access token in an HTTP-only cookie
-#     response.set_cookie(
-#         key="access_token",
-#         value=f"Bearer {access_token}",
-#         httponly=True,  # Prevent JavaScript access (XSS protection)
-#         secure=True,  # Ensure it's only sent over HTTPS
-#         samesite="Strict",  # Prevent CSRF
-#     )
-
-#     return {"refresh_token": refresh_token, "message": "Login successful"}
-
 
 
 
@@ -173,3 +138,22 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
 
     # Return a success message
     return {"message": "Password reset successful"}
+
+@auth_router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "Logged out"}
+
+
+
+
+@auth_router.get("/status")
+async def check_login_status(request: Request, user: dict = Depends(get_current_user)):
+    """
+    Checks if the user is logged in based on the HTTP-only cookie.
+    """
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "Not logged in"})
+    
+    return {"user": user.username}  # Return logged-in user's username
+

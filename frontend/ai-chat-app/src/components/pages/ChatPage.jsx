@@ -1,3 +1,19 @@
+// import { useEffect } from "react";
+
+// const ChatPage = () => {
+//   useEffect(() => {
+//     console.log("ChatPage loaded!"); // This should log in the console
+//   }, []);
+
+//   return (
+//     <div>
+//       <h1>Welcome to Chat</h1>
+//     </div>
+//   );
+// };
+
+// export default ChatPage;
+
 import { useState } from "react";
 
 const ChatPage = () => {

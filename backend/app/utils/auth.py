@@ -8,6 +8,9 @@ from core.config import settings  # Configuration settings
 import os  # OS module to access environment variables
 from dotenv import load_dotenv  # Load environment variables from .env file
 from pathlib import Path  # Path handling utilities
+from database.connection import get_db
+    
+from fastapi import Depends, HTTPException, status, Request
 
 # Load environment variables from the .env file
 env_path = Path(__file__).parent.parent.parent / '.env'
@@ -111,4 +114,47 @@ def verify_token(token: str):
         return payload.get("sub")  # Extract email
     except JWTError:
         return None
+
+
+async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Extracts and verifies the JWT token from cookies to get the current user.
+    """
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    try:
+        # Remove "Bearer " prefix before decoding
+        token = token.replace("Bearer ", "")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+            )
+
+        # Query user from the database
+        result = await db.execute(select(User).where(User.username == username))
+        user = result.scalars().first()
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+            )
+
+        return user  # Successfully authenticated user
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
 
