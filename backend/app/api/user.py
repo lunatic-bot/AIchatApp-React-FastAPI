@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.connection import get_db  # Import function to get the database session
 from models.user import User  # Import User model
@@ -28,11 +28,33 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(new_user)
     return new_user
 
-@auth_router.post("/login", response_model=Token)
-async def login_for_access_token(username: str, password: str, db: AsyncSession = Depends(get_db)):
+# @auth_router.post("/login", response_model=Token)
+# async def login_for_access_token(username: str, password: str, db: AsyncSession = Depends(get_db)):
+#     """
+#     Authenticates a user and returns both an access token and a refresh token.
+#     """
+#     user = await authenticate_user(db, username, password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+
+#     access_token = create_access_token(data={"sub": user.username})
+#     refresh_token = create_refresh_token(data={"sub": user.username})  # Generate refresh token
+
+#     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@auth_router.post("/login")
+async def login_for_access_token(
+    response: Response, username: str, password: str, db: AsyncSession = Depends(get_db)
+):
     """
-    Authenticates a user and returns both an access token and a refresh token.
+    Authenticates a user and stores the access token in a secure HTTP-only cookie.
     """
+    # Verify user credentials
     user = await authenticate_user(db, username, password)
     if not user:
         raise HTTPException(
@@ -41,10 +63,22 @@ async def login_for_access_token(username: str, password: str, db: AsyncSession 
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Generate access and refresh tokens
     access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})  # Generate refresh token
+    refresh_token = create_refresh_token(data={"sub": user.username})
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    # Store access token in an HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,  # Prevent JavaScript access (XSS protection)
+        secure=True,  # Ensure it's only sent over HTTPS
+        samesite="Strict",  # Prevent CSRF
+    )
+
+    return {"refresh_token": refresh_token, "message": "Login successful"}
+
+
 
 @auth_router.post("/refresh", response_model=TokenRefresh)
 async def refresh_access_token(refresh_token: str):

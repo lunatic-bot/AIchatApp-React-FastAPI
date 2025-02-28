@@ -7,6 +7,11 @@ import Navbar from "./components/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ForgotPassword from "./components/pages/ForgotPassword";
 
+const PrivateRoute = ({ element }) => {
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  return isAuthenticated ? element : <Navigate to="/login" />;
+};
+
 function App() {
   return (
     <Router>
@@ -15,9 +20,13 @@ function App() {
         <div className="content">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/chat" element={<ChatPage />} />
+            {/* <Route path="/chat" element={<ChatPage />} /> */}
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/chat"
+              element={<PrivateRoute element={<ChatPage />} />}
+            />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </div>
