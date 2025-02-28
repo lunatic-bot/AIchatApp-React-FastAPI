@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const RegisterPage = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -17,8 +19,23 @@ const RegisterPage = () => {
     }
 
     setError(""); // Clear previous error
-    console.log("Registering:", email, password);
-    navigate("/chat"); // Redirect to Chat after registration
+    setLoading(true);
+
+    try {
+      const response = await axios.post("http://localhost:8000/auth/register", {
+        username,
+        password,
+      });
+
+      if (response.status === 200) {
+        alert("Registration successful! You can now log in.");
+        navigate("/login"); // Redirect to login after successful registration
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || "Registration failed!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,12 +47,12 @@ const RegisterPage = () => {
         <div className="card-body">
           <form onSubmit={handleRegister}>
             <div className="mb-3">
-              <label className="form-label">Email</label>
+              <label className="form-label">Username</label>
               <input
-                type="email"
+                type="text"
                 className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -62,8 +79,12 @@ const RegisterPage = () => {
 
             {error && <div className="alert alert-danger">{error}</div>}
 
-            <button type="submit" className="btn btn-success w-100">
-              Register
+            <button
+              type="submit"
+              className="btn btn-success w-100"
+              disabled={loading}
+            >
+              {loading ? "Registering..." : "Register"}
             </button>
           </form>
 

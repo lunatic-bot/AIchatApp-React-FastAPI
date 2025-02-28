@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 # Base schema for user-related data
 class UserBase(BaseModel):
@@ -6,12 +6,18 @@ class UserBase(BaseModel):
 
 # Schema for creating a new user (includes password)
 class UserCreate(UserBase):
+    email: EmailStr
     password: str  # Password required for user creation
+
+# Create a schema for login requests
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 # Schema for returning user details in API responses
 class UserResponse(UserBase):
     id: int  # Unique user ID returned in responses
-
+    email: str
     class Config:
         # Enable ORM mode to allow SQLAlchemy models to be serialized as Pydantic models
         # orm_mode = True  

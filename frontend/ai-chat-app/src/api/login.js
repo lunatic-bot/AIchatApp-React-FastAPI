@@ -3,7 +3,7 @@ import axios from "axios";
 export const loginUser = async (username, password) => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/login", // Update with your actual backend URL
+      "http://localhost:8000/auth/login", // Update with your actual backend URL
       { username, password },
       {
         withCredentials: true, // This ensures cookies are sent & received

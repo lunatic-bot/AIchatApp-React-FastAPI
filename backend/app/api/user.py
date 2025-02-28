@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.connection import get_db  # Import function to get the database session
 from models.user import User  # Import User model
-from schemas.user import UserCreate, UserResponse, Token , TokenRefresh, ResetPasswordRequest, ForgotPasswordRequest # Import Pydantic schemas for validation
+from schemas.user import UserCreate, UserLogin, UserResponse, Token , TokenRefresh, ResetPasswordRequest, ForgotPasswordRequest # Import Pydantic schemas for validation
 from passlib.hash import bcrypt  # Library for hashing passwords
 from utils.auth import create_access_token, create_refresh_token, verify_refresh_token, authenticate_user, verify_token, create_reset_token
 
@@ -22,17 +22,24 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     - Returns the newly created user.
     """
     hashed_password = bcrypt.hash(user.password)
-    new_user = User(username=user.username, hashed_password=hashed_password)
+    new_user = User(username=user.email, hashed_password=hashed_password)
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
     return new_user
 
-# @auth_router.post("/login", response_model=Token)
-# async def login_for_access_token(username: str, password: str, db: AsyncSession = Depends(get_db)):
+
+
+
+# @auth_router.post("/login")
+# async def login_for_access_token(
+#     response: Response, username: str, password: str, db: AsyncSession = Depends(get_db)
+# ):
+#     # print(username, password)
 #     """
-#     Authenticates a user and returns both an access token and a refresh token.
+#     Authenticates a user and stores the access token in a secure HTTP-only cookie.
 #     """
+#     # Verify user credentials
 #     user = await authenticate_user(db, username, password)
 #     if not user:
 #         raise HTTPException(
@@ -41,22 +48,34 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 #             headers={"WWW-Authenticate": "Bearer"},
 #         )
 
+#     # Generate access and refresh tokens
 #     access_token = create_access_token(data={"sub": user.username})
-#     refresh_token = create_refresh_token(data={"sub": user.username})  # Generate refresh token
+#     refresh_token = create_refresh_token(data={"sub": user.username})
 
-#     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+#     # Store access token in an HTTP-only cookie
+#     response.set_cookie(
+#         key="access_token",
+#         value=f"Bearer {access_token}",
+#         httponly=True,  # Prevent JavaScript access (XSS protection)
+#         secure=True,  # Ensure it's only sent over HTTPS
+#         samesite="Strict",  # Prevent CSRF
+#     )
+
+#     return {"refresh_token": refresh_token, "message": "Login successful"}
+
+
 
 
 @auth_router.post("/login")
 async def login_for_access_token(
-    response: Response, username: str, password: str, db: AsyncSession = Depends(get_db)
+    response: Response, user: UserLogin, db: AsyncSession = Depends(get_db)
 ):
     """
     Authenticates a user and stores the access token in a secure HTTP-only cookie.
     """
     # Verify user credentials
-    user = await authenticate_user(db, username, password)
-    if not user:
+    db_user = await authenticate_user(db, user.username, user.password)
+    if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -64,8 +83,8 @@ async def login_for_access_token(
         )
 
     # Generate access and refresh tokens
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": db_user.username})
+    refresh_token = create_refresh_token(data={"sub": db_user.username})
 
     # Store access token in an HTTP-only cookie
     response.set_cookie(
