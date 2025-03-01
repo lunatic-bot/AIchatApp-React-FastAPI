@@ -24,18 +24,6 @@ function LoginPage() {
     }
   };
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   console.log("Login Button clicked");
-
-  //   try {
-  //     await loginUser(username, password); // Calls the backend login API
-  //     navigate("/chat"); // Redirect after successful login
-  //   } catch (error) {
-  //     setError("Invalid username or password");
-  //   }
-  // };
-
   return (
     <div className="d-flex justify-content-center mt-4 vh-60">
       <div className="card w-50 p-4">

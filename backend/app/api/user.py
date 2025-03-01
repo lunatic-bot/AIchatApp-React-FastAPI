@@ -146,14 +146,12 @@ def logout(response: Response):
 
 
 
-
 @auth_router.get("/status")
-async def check_login_status(request: Request, user: dict = Depends(get_current_user)):
+async def check_login_status(request: Request, user = Depends(get_current_user)):
     """
     Checks if the user is logged in based on the HTTP-only cookie.
     """
     if not user:
         return JSONResponse(status_code=401, content={"error": "Not logged in"})
     
-    return {"user": user.username}  # Return logged-in user's username
-
+    return {"user": user.username} 

@@ -1,24 +1,40 @@
-// import { useEffect } from "react";
-
-// const ChatPage = () => {
-//   useEffect(() => {
-//     console.log("ChatPage loaded!"); // This should log in the console
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1>Welcome to Chat</h1>
-//     </div>
-//   );
-// };
-
-// export default ChatPage;
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate();
+
+  // Check if the user is logged in
+  useEffect(() => {
+    fetch("/auth/status", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking auth status:", error);
+        setIsAuthenticated(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      navigate("/login"); // Redirect to login if not authenticated
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>; // Show loading while checking auth status
+  }
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -28,7 +44,7 @@ const ChatPage = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevents line break in input
+      e.preventDefault();
       sendMessage();
     }
   };
@@ -60,7 +76,7 @@ const ChatPage = () => {
             className="form-control"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress} // Handles Enter key press
+            onKeyDown={handleKeyPress}
             placeholder="Type a message..."
           />
           <button className="btn btn-success ms-2" onClick={sendMessage}>
