@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-fledged AI-powered chat application built using **React** for the frontend, **FastAPI** for the backend, and **PostgreSQL** as the database. The app supports real-time communication via **WebSockets** and integrates a lightweight **LLM (Language Model) from Hugging Face** for AI-generated responses. The frontend uses **Bootstrap** for styling.
+This is a full-fledged AI-powered chat application built using **React** for the frontend, **FastAPI** for the backend, and **PostgreSQL** as the database. The app supports real-time communication via **WebSockets** and integrates a lightweight **LLM (Language Model) from Hugging Face** for AI-generated responses. I will add more advanced LLM for better chat facility at later stages. The frontend uses **Bootstrap** for styling.
 
 ## Features
 
