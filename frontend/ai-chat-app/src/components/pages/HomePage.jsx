@@ -3,34 +3,37 @@ import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // null initially to prevent premature redirects
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // Initially null to avoid unnecessary redirects
 
   useEffect(() => {
+    // Fetch authentication status from the backend
     fetch("/auth/status", {
       method: "GET",
-      credentials: "include", // Include HTTP-only cookies
+      credentials: "include", // Ensures cookies (such as session tokens) are sent
     })
       .then((response) => {
         if (response.ok) {
-          setIsAuthenticated(true);
+          setIsAuthenticated(true); // User is authenticated
         } else {
-          setIsAuthenticated(false);
+          setIsAuthenticated(false); // User is not authenticated
         }
       })
       .catch((error) => {
         console.error("Error checking auth status:", error);
-        setIsAuthenticated(false);
+        setIsAuthenticated(false); // Assume unauthenticated on error
       });
   }, []);
 
   useEffect(() => {
+    // Redirect to login page if authentication fails
     if (isAuthenticated === false) {
       navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
+  // Show a loading message while authentication status is being determined
   if (isAuthenticated === null) {
-    return <div>Loading...</div>; // Prevent redirect flicker
+    return <div>Loading...</div>; // Prevents flickering due to premature redirects
   }
 
   return (
@@ -38,7 +41,7 @@ const HomePage = () => {
       <div className="text-center">
         <h1 className="mb-4">Welcome to AI Chat</h1>
         <button
-          onClick={() => navigate("/chat")}
+          onClick={() => navigate("/chat")} // Navigate to chat page when clicked
           className="btn btn-primary btn-lg"
         >
           Start Chatting
