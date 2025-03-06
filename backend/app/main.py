@@ -23,4 +23,3 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(websocket_router, prefix="", tags=["WebSocket"])
 
-##
