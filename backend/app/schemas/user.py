@@ -27,23 +27,36 @@ class UserResponse(UserBase):
 
 
 
-from pydantic import BaseModel
+from pydantic import BaseModel  # Import BaseModel for data validation and serialization
 
 
 class Token(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str
+    """Schema for representing authentication tokens."""
+
+    access_token: str  # The access token used for authentication
+    refresh_token: str  # The refresh token used to generate a new access token
+    token_type: str  # The type of token, typically "Bearer"
+
 
 class TokenRefresh(BaseModel):
-    access_token: str
-    token_type: str
+    """Schema for refreshing an expired access token."""
 
-from pydantic import BaseModel, EmailStr
+    access_token: str  # A newly generated access token
+    token_type: str  # The type of token, typically "Bearer"
+
+
+from pydantic import BaseModel, EmailStr  # Import EmailStr for email validation
+
 
 class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
+    """Schema for requesting a password reset."""
+
+    email: EmailStr  # User's email for sending a password reset link
+
 
 class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str
+    """Schema for resetting a user's password."""
+
+    token: str  # The password reset token sent to the user
+    new_password: str  # The new password the user wants to set
+
