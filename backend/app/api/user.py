@@ -52,14 +52,21 @@ async def login_for_access_token(
     refresh_token = create_refresh_token(data={"sub": db_user.username})
 
     # Store access token in an HTTP-only cookie
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=f"Bearer {access_token}",
+    #     httponly=True,  # Prevent JavaScript access (XSS protection)
+    #     secure=True,  # Ensure it's only sent over HTTPS
+    #     samesite="Strict",  # Prevent CSRF
+    # )
+    
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,  # Prevent JavaScript access (XSS protection)
-        secure=True,  # Ensure it's only sent over HTTPS
-        samesite="Strict",  # Prevent CSRF
+        value=access_token,
+        httponly=True,
+        samesite="Lax",  # or "None" if working with cross-origin requests
+        secure=True,  # Use secure cookies in production
     )
-
     return {"refresh_token": refresh_token, "message": "Login successful"}
 
 
@@ -147,11 +154,7 @@ def logout(response: Response):
 
 
 @auth_router.get("/status")
-async def check_login_status(request: Request, user = Depends(get_current_user)):
-    """
-    Checks if the user is logged in based on the HTTP-only cookie.
-    """
-    if not user:
-        raise HTTPException(status_code=401, detail="Not logged in")
-    
-    return {"user": user.username} 
+async def auth_status(current_user: dict = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return {"status": "authenticated"}

@@ -10,13 +10,16 @@ app = FastAPI(debug=True,
     version="0.1.0",)
 
 ##
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Adjust based on your frontend
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Frontend origin
+    allow_credentials=True,  # Allow sending cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 
 
 # Include Routers

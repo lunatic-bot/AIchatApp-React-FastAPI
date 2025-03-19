@@ -3,42 +3,51 @@ import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = unknown state
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
+  // Check auth status from the backend
   useEffect(() => {
-    // Fetch authentication status from the backend
     const checkAuthStatus = async () => {
       try {
         const response = await fetch("/auth/status", {
           method: "GET",
-          credentials: "include", // Send cookies
+          credentials: "include",
         });
-        console.log(response.status);
+
         if (response.ok) {
-          setIsAuthenticated(true); // User is authenticated
+          try {
+            const data = await response.json(); // Only parse JSON if response is OK
+            if (data.status === "authenticated") {
+              setIsAuthenticated(true);
+            } else {
+              setIsAuthenticated(false);
+            }
+          } catch (jsonError) {
+            console.error("Invalid JSON response:", jsonError);
+            setIsAuthenticated(false);
+          }
         } else if (response.status === 401) {
-          setIsAuthenticated(false); // User is not authenticated
+          setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error("Error checking auth status:", error);
-        setIsAuthenticated(false); // Treat network errors as unauthenticated
+        console.error("Failed to check auth status:", error);
+        setIsAuthenticated(false);
       }
     };
 
     checkAuthStatus();
   }, []);
 
-  console.log(isAuthenticated);
-  // Handle the "Start Chatting" button click
+  // Handle button click for redirection
   const handleStartChat = () => {
     if (isAuthenticated) {
-      navigate("/chat"); // If logged in → go to chat
+      navigate("/chat"); // Redirect to chat if authenticated
     } else {
-      navigate("/auth/login"); // If not logged in → go to login
+      navigate("/auth/login"); // Redirect to login if not authenticated
     }
   };
 
-  // Show loading while status is being checked
+  // Show loading state while checking auth status
   if (isAuthenticated === null) {
     return <div>Loading...</div>;
   }
