@@ -41,9 +41,9 @@ const HomePage = () => {
   // Handle button click for redirection
   const handleStartChat = () => {
     if (isAuthenticated) {
-      navigate("/chat"); // Redirect to chat if authenticated
+      navigate("/chat");
     } else {
-      navigate("/auth/login"); // Redirect to login if not authenticated
+      navigate("/auth/login");
     }
   };
 
