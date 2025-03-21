@@ -1,9 +1,13 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
+import { StrictMode } from "react"; // Enables React's strict mode for highlighting potential issues
+import { createRoot } from "react-dom/client"; // Imports the new root API for rendering in React 18+
+import App from "./App.jsx"; // Imports the main App component
 
-createRoot(document.getElementById("root")).render(
+// Selects the root DOM element where the React app will be mounted
+const rootElement = document.getElementById("root");
+
+// Creates a root and renders the application inside React.StrictMode
+createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <App /> {/* Renders the main App component inside StrictMode */}
   </StrictMode>
 );
