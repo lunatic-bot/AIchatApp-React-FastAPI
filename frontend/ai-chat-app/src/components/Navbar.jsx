@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-/**
- * Navbar Component
- * Displays navigation links and handles user authentication status.
- */
 const Navbar = () => {
   const [user, setUser] = useState(null); // Stores the logged-in user's name
   const navigate = useNavigate(); // Hook for navigation

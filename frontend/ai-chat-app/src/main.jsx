@@ -1,4 +1,4 @@
-import { StrictMode } from "react"; // Enables React's strict mode for highlighting potential issues
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client"; // Imports the new root API for rendering in React 18+
 import App from "./App.jsx"; // Imports the main App component
 
