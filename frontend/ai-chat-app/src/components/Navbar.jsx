@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const [user, setUser] = useState(null); // Stores the logged-in user's name
-  const navigate = useNavigate(); // Hook for navigation
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   // Check if the user is logged in when the component mounts
   useEffect(() => {
